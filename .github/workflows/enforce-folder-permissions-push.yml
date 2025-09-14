@@ -1,0 +1,89 @@
+name: Enforce and Evaluate
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: main
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+
+    # Log the event name and event path for debugging purposes
+    - name: Log Event Name and Path
+      run: |
+        echo "Event Name: ${{ github.event_name }}"
+        echo "Event Path: $GITHUB_EVENT_PATH"
+        cat $GITHUB_EVENT_PATH
+
+    # Extract and log details from Git history to find the main contributor
+    - name: Identify the Main Contributor from the Merge
+      env:
+        TOKEN_USER_READ: ${{ secrets.TOKEN_USER_READ }}
+      run: |
+        # Get the latest commit hash from the current branch (usually main after a merge)
+        COMMIT_HASH=$(git rev-parse HEAD)
+
+        # Get repository owner and name from the current Git context
+        REPO=$(basename `git rev-parse --show-toplevel`)
+        OWNER=$(git remote get-url origin | sed -n 's#.*github.com[:/]\(.*\)/.*#\1#p')
+
+        echo "Fetching GitHub username for commit: $COMMIT_HASH"
+
+        # Use the GitHub Commit API to get commit details
+        COMMIT_API_URL="https://api.github.com/repos/$OWNER/$REPO/commits/$COMMIT_HASH"
+        COMMIT_DETAILS=$(curl -s -H "Authorization: token $TOKEN_USER_READ" $COMMIT_API_URL)
+
+        # Extract the commit author's GitHub username from the API response
+        USER_LOGIN=$(echo "$COMMIT_DETAILS" | jq -r '.author.login')
+
+        # Check if the username was successfully determined
+        if [ -n "$USER_LOGIN" ] && [ "$USER_LOGIN" != "null" ]; then
+          echo "GitHub Username successfully determined: $USER_LOGIN"
+          echo "AUTHOR=$USER_LOGIN" >> $GITHUB_ENV
+        else
+          echo "Failed to determine GitHub username for commit $COMMIT_HASH"
+          exit 1
+        fi
+
+    # Log the repository name for further use
+    - name: Log Repository Name
+      run: |
+        echo "GITHUB_REPOSITORY_NAME=$(echo ${{ github.repository }} | cut -d '/' -f2)" >> $GITHUB_ENV
+        echo "Repository Name: ${{ env.GITHUB_REPOSITORY_NAME }}"
+
+    - name: Setup AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Set Script Permissions
+      run: chmod +x ./scripts/* ./tests/*/exercise*.sh ./tests/run_tests_and_update_results.sh
+
+    - name: Check and Add User to Students List
+      run: ./scripts/check-and-add-user.sh ${{ env.AUTHOR }} ${{ env.GITHUB_REPOSITORY_NAME }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Determine Changed Modules
+      run: |
+        CHANGED_MODULES=$(./scripts/check-changed-modules.sh ${{ env.AUTHOR }} "false")
+        echo "CHANGED_MODULES=$CHANGED_MODULES" >> $GITHUB_ENV
+        echo "Changed modules: $CHANGED_MODULES"
+
+    - name: Run Tests and Update Results
+      run: |
+        if [[ -z "${{ env.CHANGED_MODULES }}" ]]; then
+          echo "No MODULEs changed. Skipping tests."
+        else
+          echo "Running tests for changed modules: ${{ env.CHANGED_MODULES }}"
+          ./tests/run_tests_and_update_results.sh ${{ env.AUTHOR }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ secrets.AWS_DEFAULT_REGION }} "${{ env.CHANGED_MODULES }}" ${{ env.GITHUB_REPOSITORY_NAME }}
+          ./scripts/compute_progress_percentage.sh ${{ env.AUTHOR }} ${{ env.GITHUB_REPOSITORY_NAME }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ secrets.AWS_DEFAULT_REGION }}
+        fi

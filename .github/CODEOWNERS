@@ -1,0 +1,7 @@
+# Code owner
+.github/ @racousin
+.scripts/ @racousin
+.tests/ @racousin
+.website/ @racousin
+Makefile @racousin
+.gitignore @racousin
