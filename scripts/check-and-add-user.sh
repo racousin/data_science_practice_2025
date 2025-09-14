@@ -45,7 +45,14 @@ fi
 # Always ensure the individual student JSON file exists
 if ! aws s3 ls s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/"$USER".json > /dev/null 2>&1; then
   echo "Creating initial student JSON for $USER."
-  aws s3 cp ./scripts/student.json s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/"$USER".json
+  if [ -f "./scripts/student.json" ]; then
+    aws s3 cp ./scripts/student.json s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/"$USER".json
+  else
+    echo "ERROR: ./scripts/student.json not found. Current directory: $(pwd)"
+    echo "Files in scripts/:"
+    ls -la scripts/ || echo "scripts/ directory not found"
+    exit 1
+  fi
 else
   echo "Student JSON file for $USER already exists."
 fi
