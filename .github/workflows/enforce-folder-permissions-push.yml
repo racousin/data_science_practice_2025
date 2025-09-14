@@ -28,29 +28,22 @@ jobs:
       env:
         TOKEN_USER_READ: ${{ secrets.TOKEN_USER_READ }}
       run: |
-        # Get the latest commit hash from the current branch (usually main after a merge)
-        COMMIT_HASH=$(git rev-parse HEAD)
+        # Run the author detection script and capture the output
+        SCRIPT_OUTPUT=$(./scripts/detect-pr-author.sh)
 
-        # Get repository owner and name from the current Git context
-        REPO=$(basename `git rev-parse --show-toplevel`)
-        OWNER=$(git remote get-url origin | sed -n 's#.*github.com[:/]\(.*\)/.*#\1#p')
+        # Display the full output for logging
+        echo "$SCRIPT_OUTPUT"
 
-        echo "Fetching GitHub username for commit: $COMMIT_HASH"
+        # Extract the final detected author from the output
+        DETECTED_AUTHOR=$(echo "$SCRIPT_OUTPUT" | grep "FINAL DETECTED AUTHOR:" | sed 's/FINAL DETECTED AUTHOR: //')
 
-        # Use the GitHub Commit API to get commit details
-        COMMIT_API_URL="https://api.github.com/repos/$OWNER/$REPO/commits/$COMMIT_HASH"
-        COMMIT_DETAILS=$(curl -s -H "Authorization: token $TOKEN_USER_READ" $COMMIT_API_URL)
-
-        # Extract the commit author's GitHub username from the API response
-        USER_LOGIN=$(echo "$COMMIT_DETAILS" | jq -r '.author.login')
-
-        # Check if the username was successfully determined
-        if [ -n "$USER_LOGIN" ] && [ "$USER_LOGIN" != "null" ]; then
-          echo "GitHub Username successfully determined: $USER_LOGIN"
-          echo "AUTHOR=$USER_LOGIN" >> $GITHUB_ENV
+        if [ -n "$DETECTED_AUTHOR" ]; then
+          echo "AUTHOR=$DETECTED_AUTHOR" >> $GITHUB_ENV
+          echo "Successfully set author for GitHub Actions: $DETECTED_AUTHOR"
         else
-          echo "Failed to determine GitHub username for commit $COMMIT_HASH"
-          exit 1
+          echo "Warning: Could not detect author, using git fallback"
+          GIT_AUTHOR=$(git show -s --format='%an' HEAD)
+          echo "AUTHOR=$GIT_AUTHOR" >> $GITHUB_ENV
         fi
 
     # Log the repository name for further use
