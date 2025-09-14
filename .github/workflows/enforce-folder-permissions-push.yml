@@ -60,7 +60,7 @@ jobs:
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
     - name: Set Script Permissions
-      run: chmod +x ./scripts/* ./tests/*/exercise*.sh ./tests/run_tests_and_update_results.sh
+      run: chmod +x ./scripts/* ./tests/data-science-practice/*/exercise*.sh ./tests/run_tests_and_update_results.sh
 
     - name: Check and Add User to Students List
       run: ./scripts/check-and-add-user.sh ${{ env.AUTHOR }} ${{ env.GITHUB_REPOSITORY_NAME }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ secrets.AWS_DEFAULT_REGION }}
