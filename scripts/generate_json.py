@@ -18,11 +18,6 @@ modules_data = [
     1,
     1,
     1,
-    1,
-    1,
-    1,
-    1,
-    1,
 ]  # Example data, replace with [1, 2, 2, 5, 6, 7, 1, 4] or other configurations
 
 # Render the template with data

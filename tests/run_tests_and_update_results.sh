@@ -34,7 +34,7 @@ pip install -r tests/requirements.txt
 echo $CHANGED_MODULES
 IFS=' ' read -r -a modules <<< "$CHANGED_MODULES"  # Split CHANGED_MODULES into an array
 for module in "${modules[@]}"; do
-    MODULE_DIR="${TEST_DIR}/module${module}"
+    MODULE_DIR="${TEST_DIR}/data-science-practice/module${module}"
     if [ -d "$MODULE_DIR" ]; then
         echo "Processing module $module..."
         EXERCISE_SCRIPTS=$(find "$MODULE_DIR" -name '*.sh')

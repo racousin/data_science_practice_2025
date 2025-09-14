@@ -51,19 +51,26 @@ def aggregate_results(
     bucket,
     key,
 ):
-    # Download the existing results JSON from S3
-    download_from_s3(
-        bucket,
-        key,
-        aws_access_key_id,
-        aws_secret_access_key,
-        region_name,
-        final_json_path,
-    )
-    print(f"download done to {final_json_path}")
-
-    # Load the existing results with error handling
-    all_results = safe_load_json(final_json_path)
+    # Try to download the existing results JSON from S3, if it doesn't exist create from template
+    try:
+        download_from_s3(
+            bucket,
+            key,
+            aws_access_key_id,
+            aws_secret_access_key,
+            region_name,
+            final_json_path,
+        )
+        print(f"download done to {final_json_path}")
+        # Load the existing results with error handling
+        all_results = safe_load_json(final_json_path)
+    except Exception as e:
+        print(f"Failed to download existing results from S3 (likely first time): {str(e)}")
+        print("Creating initial student results from template...")
+        # Load the template from scripts/student.json
+        template_path = "./scripts/student.json"
+        all_results = safe_load_json(template_path)
+        print(f"Loaded template: {all_results}")
 
     # Merge local results into the existing JSON
     for filename in os.listdir(results_dir):
