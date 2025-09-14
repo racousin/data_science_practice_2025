@@ -95,14 +95,19 @@ def aggregate_results(
 def upload_to_s3(
     file_path, bucket, key, aws_access_key_id, aws_secret_access_key, region_name
 ):
-    session = boto3.Session(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
-        region_name=region_name,
-    )
-    s3 = session.client("s3")
-    s3.upload_file(file_path, bucket, key)
-    print(f"write back json remotly from path {file_path} to {key}")
+    try:
+        print(f"Attempting to upload {file_path} to s3://{bucket}/{key}")
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=region_name,
+        )
+        s3 = session.client("s3")
+        s3.upload_file(file_path, bucket, key)
+        print(f"Successfully uploaded json to s3://{bucket}/{key}")
+    except Exception as e:
+        print(f"ERROR uploading to S3: {str(e)}")
+        raise
 
 
 if __name__ == "__main__":

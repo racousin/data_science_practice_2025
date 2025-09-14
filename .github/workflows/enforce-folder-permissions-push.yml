@@ -52,6 +52,19 @@ jobs:
         echo "GITHUB_REPOSITORY_NAME=$(echo ${{ github.repository }} | cut -d '/' -f2)" >> $GITHUB_ENV
         echo "Repository Name: ${{ env.GITHUB_REPOSITORY_NAME }}"
 
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('tests/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Setup AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
       with:

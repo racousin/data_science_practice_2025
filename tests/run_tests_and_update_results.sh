@@ -26,7 +26,7 @@ aws configure set default.region $AWS_DEFAULT_REGION
 
 mkdir -p $RESULTS_DIR  # Ensure results directory exists
 
-# Aggregate results and upload to S3
+# Setup Python environment before running tests
 python3 -m venv venv
 source venv/bin/activate
 pip install -r tests/requirements.txt
