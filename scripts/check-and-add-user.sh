@@ -40,8 +40,12 @@ else
 
   echo "Releasing lock..."
   aws s3 rm s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/config/lock.txt
+fi
 
-    # Create a new student JSON file for the user
+# Always ensure the individual student JSON file exists
+if ! aws s3 ls s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/"$USER".json > /dev/null 2>&1; then
   echo "Creating initial student JSON for $USER."
   aws s3 cp ./scripts/student.json s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/"$USER".json
+else
+  echo "Student JSON file for $USER already exists."
 fi
