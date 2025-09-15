@@ -17,6 +17,11 @@ FILE_PATH="${USERNAME}/module${MODULE_NUMBER}/user"
 
 # Check if the file exists
 if [ ! -f "$FILE_PATH" ]; then
+  # Check if student created file with .txt extension (common mistake)
+  if [ -f "${FILE_PATH}.txt" ]; then
+    echo "{\"is_passed_test\": false, \"score\": \"0\", \"logs\": \"Error: Found ${FILE_PATH}.txt but expected ${FILE_PATH} (without .txt extension). Please rename your file to remove the .txt extension.\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
+    exit 1
+  fi
   echo "{\"is_passed_test\": false, \"score\": \"0\", \"logs\": \"Error: File $FILE_PATH does not exist.\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
   exit 1
 fi
