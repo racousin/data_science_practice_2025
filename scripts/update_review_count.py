@@ -85,30 +85,24 @@ def update_review_count(
     if 'nb_review' not in student_data:
         student_data['nb_review'] = 0
 
-    # Initialize review history if tracking detailed reviews (optional)
-    if 'review_history' not in student_data:
-        student_data['review_history'] = []
+    # Initialize last_review_pr if it doesn't exist
+    if 'last_review_pr' not in student_data:
+        student_data['last_review_pr'] = ""
 
-    # Increment review count
+    # Check if this is a new PR (avoid counting multiple reviews on same PR)
+    if student_data['last_review_pr'] == str(pr_number):
+        print(f"Skipping duplicate review by {reviewer_username} on PR #{pr_number} (already reviewed)")
+        return False
+
+    # Increment review count for new PR
     old_count = student_data['nb_review']
     student_data['nb_review'] += 1
 
-    # Update last review timestamp
+    # Update last review timestamp and PR number
     student_data['last_review_at'] = datetime.utcnow().isoformat() + 'Z'
+    student_data['last_review_pr'] = str(pr_number)
 
-    # Optionally track review history (can be disabled if not needed)
-    review_record = {
-        'pr_number': pr_number,
-        'pr_author': pr_author_username,
-        'review_state': review_state,
-        'reviewed_at': student_data['last_review_at']
-    }
-
-    # Keep only last 10 reviews to avoid data bloat
-    student_data['review_history'].append(review_record)
-    student_data['review_history'] = student_data['review_history'][-10:]
-
-    print(f"Updated {reviewer_username} (ID: {student_id}) review count from {old_count} to {student_data['nb_review']}")
+    print(f"Updated {reviewer_username} (ID: {student_id}) review count from {old_count} to {student_data['nb_review']} for PR #{pr_number}")
     return True
 
 
