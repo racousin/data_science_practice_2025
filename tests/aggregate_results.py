@@ -111,23 +111,28 @@ def upload_to_s3(
 
 
 if __name__ == "__main__":
-    results_dir = sys.argv[1]
-    final_json_path = sys.argv[2]
-    bucket = sys.argv[3]
-    key = sys.argv[4]
-    aws_access_key_id = sys.argv[5]
-    aws_secret_access_key = sys.argv[6]
-    region_name = sys.argv[7]
+    try:
+        results_dir = sys.argv[1]
+        final_json_path = sys.argv[2]
+        bucket = sys.argv[3]
+        key = sys.argv[4]
+        aws_access_key_id = sys.argv[5]
+        aws_secret_access_key = sys.argv[6]
+        region_name = sys.argv[7]
 
-    final_path = aggregate_results(
-        results_dir,
-        final_json_path,
-        aws_access_key_id,
-        aws_secret_access_key,
-        region_name,
-        bucket,
-        key,
-    )
-    upload_to_s3(
-        final_path, bucket, key, aws_access_key_id, aws_secret_access_key, region_name
-    )
+        final_path = aggregate_results(
+            results_dir,
+            final_json_path,
+            aws_access_key_id,
+            aws_secret_access_key,
+            region_name,
+            bucket,
+            key,
+        )
+        upload_to_s3(
+            final_path, bucket, key, aws_access_key_id, aws_secret_access_key, region_name
+        )
+        print("SUCCESS: Results aggregated and uploaded to S3")
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        sys.exit(1)

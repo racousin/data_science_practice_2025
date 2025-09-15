@@ -27,9 +27,9 @@ aws configure set default.region $AWS_DEFAULT_REGION
 mkdir -p $RESULTS_DIR  # Ensure results directory exists
 
 # Setup Python environment before running tests
-python3 -m venv venv
-source venv/bin/activate
-pip install -r tests/requirements.txt
+python3 -m venv venv || { echo "ERROR: Failed to create virtual environment"; exit 1; }
+source venv/bin/activate || { echo "ERROR: Failed to activate virtual environment"; exit 1; }
+pip install -r tests/requirements.txt || { echo "ERROR: Failed to install Python dependencies"; exit 1; }
 
 echo $CHANGED_MODULES
 IFS=' ' read -r -a modules <<< "$CHANGED_MODULES"  # Split CHANGED_MODULES into an array
@@ -44,15 +44,28 @@ for module in "${modules[@]}"; do
 
             echo "Running tests for module $module, exercise $exercise..."
             echo $USER $CURRENT_UTC_TIME $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY $AWS_DEFAULT_REGION
-            "$script" $USER $CURRENT_UTC_TIME $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY $AWS_DEFAULT_REGION
+            "$script" $USER $CURRENT_UTC_TIME $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY $AWS_DEFAULT_REGION || {
+                echo "ERROR: Test script failed: $script";
+                deactivate || true;
+                rm -rf venv || true;
+                rm -rf $RESULTS_DIR || true;
+                exit 1;
+            }
         done
     else
         echo "No tests found for module $module."
     fi
 done
 
-python tests/aggregate_results.py $RESULTS_DIR $FINAL_JSON $S3_BUCKET $S3_KEY $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY $AWS_DEFAULT_REGION
-deactivate
-# rm -rf venv
-# Cleanup local results
-rm -rf $RESULTS_DIR
+python tests/aggregate_results.py $RESULTS_DIR $FINAL_JSON $S3_BUCKET $S3_KEY $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY $AWS_DEFAULT_REGION || {
+    echo "ERROR: Failed to aggregate results and upload to S3";
+    deactivate || true;
+    rm -rf venv || true;
+    rm -rf $RESULTS_DIR || true;
+    exit 1;
+}
+
+echo "SUCCESS: All tests completed and results uploaded to S3"
+deactivate || true
+rm -rf venv || true
+rm -rf $RESULTS_DIR || true
