@@ -40,6 +40,41 @@ if [ ! -d "$PACKAGE_DIR" ]; then
   exit 1
 fi
 
+# Check for build artifacts that should not be committed
+FOUND_ARTIFACTS=""
+
+# Check for build/dist directories
+if [ -d "$PACKAGE_DIR/build" ]; then
+  FOUND_ARTIFACTS="${FOUND_ARTIFACTS}build/ "
+fi
+if [ -d "$PACKAGE_DIR/dist" ]; then
+  FOUND_ARTIFACTS="${FOUND_ARTIFACTS}dist/ "
+fi
+
+# Check for .egg-info directories
+EGG_INFO_DIRS=$(find "$PACKAGE_DIR" -name "*.egg-info" -type d 2>/dev/null)
+if [ -n "$EGG_INFO_DIRS" ]; then
+  FOUND_ARTIFACTS="${FOUND_ARTIFACTS}$(basename $EGG_INFO_DIRS) "
+fi
+
+# Check for __pycache__ directories
+PYCACHE_DIRS=$(find "$PACKAGE_DIR" -name "__pycache__" -type d 2>/dev/null)
+if [ -n "$PYCACHE_DIRS" ]; then
+  FOUND_ARTIFACTS="${FOUND_ARTIFACTS}__pycache__/ "
+fi
+
+# Check for .pyc files
+PYC_FILES=$(find "$PACKAGE_DIR" -name "*.pyc" -type f 2>/dev/null)
+if [ -n "$PYC_FILES" ]; then
+  FOUND_ARTIFACTS="${FOUND_ARTIFACTS}*.pyc "
+fi
+
+if [ -n "$FOUND_ARTIFACTS" ]; then
+  LOGS="Build artifacts found that should not be committed: ${FOUND_ARTIFACTS}. Please add these to your .gitignore file and remove them from the repository."
+  echo "{\"is_passed_test\": false, \"score\": \"0\", \"logs\": \"$LOGS\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
+  exit 1
+fi
+
 # Attempt to install the package using pip
 if ! pip install $PACKAGE_DIR; then
   LOGS="Failed to install package from $PACKAGE_DIR."
