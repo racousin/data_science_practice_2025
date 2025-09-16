@@ -20,10 +20,18 @@ TESTS_DIR="./tests/data-science-practice/module2"
 
 mkdir -p $RESULTS_DIR  # Ensure results directory exists
 
-sudo apt-get install -y xmlstarlet
+# Install xmlstarlet if not available (macOS users should use: brew install xmlstarlet)
+if ! command -v xmlstarlet &> /dev/null; then
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo apt-get update && sudo apt-get install -y xmlstarlet
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "Please install xmlstarlet using: brew install xmlstarlet"
+        exit 1
+    fi
+fi
 
 # Setup a Python virtual environment
-# python3 -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 
 PACKAGE_DIR="$(pwd)/${USERNAME}/module2/mysupertools"
@@ -46,8 +54,8 @@ if ! python -m pytest $TESTS_DIR/test_exercise1.py --junitxml=results.xml; then
   if [ -f results.xml ] && [ -s results.xml ]; then
     # Extract error messages from the XML file using xmlstarlet
     ERROR_DETAILS=$(xmlstarlet sel -t -m "//error | //failure" -v . -n results.xml | \
-            sed ':a;N;$!ba;s/\\/\\\\/g; s/"/\\"/g; s/\n/\\n/g; s/&gt;/>/g; s/&lt;/</g; s/&amp;/&/g' | \
-            tr -d '\r' | \
+            sed 's/\\/\\\\/g; s/"/\\"/g; s/&gt;/>/g; s/&lt;/</g; s/&amp;/&/g' | \
+            tr -d '\r\n' | \
             awk '{gsub(/[[:cntrl:]]/, ""); print}')
 
   else
