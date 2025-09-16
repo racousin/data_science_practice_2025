@@ -36,7 +36,8 @@ source venv/bin/activate
 
 PACKAGE_DIR="$(pwd)/${USERNAME}/module2/mysupertools"
 if [ ! -d "$PACKAGE_DIR" ]; then
-  echo "{\"is_passed_test\": false, \"score\": \"0\", \"logs\": \"Package directory not found at $PACKAGE_DIR.\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
+  LOGS="No folder module2/mysupertools/"
+  echo "{\"is_passed_test\": false, \"score\": \"0\", \"logs\": \"$LOGS\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
   exit 1
 fi
 
@@ -77,7 +78,7 @@ fi
 
 # Attempt to install the package using pip
 if ! pip install $PACKAGE_DIR; then
-  LOGS="Failed to install package from $PACKAGE_DIR."
+  LOGS="Failed to install package from ${USERNAME}/module2/mysupertools. Expected structure:\\n${USERNAME}/module2/mysupertools/\\n    ├── pyproject.toml\\n    └── mysupertools/\\n        ├── __init__.py\\n        └── tool/\\n            ├── __init__.py\\n            └── operation_a_b.py\\n\\nNote: pyproject.toml should be in module2/mysupertools/"
   echo "{\"is_passed_test\": false, \"score\": \"0\", \"logs\": \"$LOGS\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
   exit 1
 fi
