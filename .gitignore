@@ -26,7 +26,6 @@ website/public/modules/venv
 
 # Byte-compiled / optimized / DLL files
 poetry.lock
-pyproject.toml
 notebooks/
 scripts/aws.sh
 results.xml
