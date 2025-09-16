@@ -71,7 +71,7 @@ if [ -n "$PYC_FILES" ]; then
 fi
 
 if [ -n "$FOUND_ARTIFACTS" ]; then
-  LOGS="Build artifacts found that should not be committed: ${FOUND_ARTIFACTS}. Please add these to your .gitignore file and remove them from the repository."
+  LOGS="Build artifacts found that should not be committed: ${FOUND_ARTIFACTS}. Remove them from the repository in a new branch and try again."
   echo "{\"is_passed_test\": false, \"score\": \"0\", \"logs\": \"$LOGS\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
   exit 1
 fi
