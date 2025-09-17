@@ -1,2 +1,3 @@
-__all__ = []
-__version__ = "0.1.0"
+from .tool.operation_a_b import multiply
+
+__all__ = ["multiply"]
