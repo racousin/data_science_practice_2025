@@ -9,7 +9,7 @@ def multiply(a, b):
     Returns:
         Product of a and b if both are numbers, "error" otherwise
     """
-     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
         return a * b
     else:
         return "error"
