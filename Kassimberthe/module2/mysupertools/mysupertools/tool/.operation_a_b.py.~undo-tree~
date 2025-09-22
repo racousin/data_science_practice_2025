@@ -1,0 +1,6 @@
+(undo-tree-save-format-version . 1)
+"c798228a390435321176b997b28c8ce4bcf7d088"
+[nil nil nil nil (26833 23161 772261 914000) 0 nil]
+([nil nil ((344 . 345) (#("\"" 0 1 (face font-lock-string-face fontified nil)) . -344) (344 . 345) (342 . 343) (#("o" 0 1 (face font-lock-string-face fontified t)) . -342) (undo-tree-id0 . -1) (#("\"" 0 1 (face font-lock-string-face fontified t)) . -343) (undo-tree-id1 . -1) 344 (343 . 344) (#("\"" 0 1 (face font-lock-string-face fontified nil)) . -343) (343 . 344) (#("\"" 0 1 (face font-lock-string-face rear-nonsticky t fontified t)) . -344) (undo-tree-id2 . -1) 345 (nil rear-nonsticky nil 344 . 345) (nil fontified nil 228 . 345) (228 . 345) (223 . 228) (nil rear-nonsticky nil 222 . 223) (nil fontified nil 20 . 223) (20 . 223) (#("    " 0 4 (fontified t)) . -20) (undo-tree-id3 . -4) 24 (19 . 24) (18 . 19) (#(")" 0 1 (fontified nil)) . -17) (17 . 18) (#(")" 0 1 (fontified nil)) . -17) (14 . 18) (13 . 15) (1 . 13) (t . -1)) nil (26833 23161 772258 901000) 0 nil])
+([nil current ((345 . 346)) nil (26833 23161 772228 140000) 0 nil])
+nil
