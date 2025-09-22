@@ -4,7 +4,6 @@ tmp
 tests/students.json
 students.json
 website/public/modules/sandbox/
-*.csv
 **/*.pt
 **/data_save/**
 **/data/**
