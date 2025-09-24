@@ -34,7 +34,7 @@ else
   echo "Creating lock..."
   echo "Lock" | aws s3 cp - s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/config/lock.txt
 
-  jq '."'"$USER"'" = {"progress_percentage": 0, "error_percentage": 0}' students.json > updated_students.json
+  jq '."'"$USER"'" = {"firstname": "", "lastname": "", "github_username": "'"$USER"'", "registered_at": "", "course_year": "2025", "email": "", "progress_percentage": 0, "error_percentage": 0, "nb_review": 0, "last_review_pr": ""}' students.json > updated_students.json
   mv updated_students.json students.json
   aws s3 cp students.json s3://www.raphaelcousin.com/repositories/$GITHUB_REPOSITORY_NAME/students/config/students.json
 
