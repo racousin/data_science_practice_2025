@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mysupertools"
+version = "0.1.0"
+description = "A simple tool package with multiplication function"
+authors = [{name = "Guillaume Leteurtre", email = "gleteurtre@gmail.com"}]
+requires-python = ">=3.8"
+classifiers = [
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mysupertools*"]
