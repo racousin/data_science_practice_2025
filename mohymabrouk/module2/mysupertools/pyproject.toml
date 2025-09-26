@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mysupertools"
+version = "0.1.0"
+description = "Module2 implementation for exercise"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "mohymabrouk", email = "mohymabrouk0@gmail.com" }]
+dependencies = []
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mysupertools*"]
