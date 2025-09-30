@@ -1,0 +1,7 @@
+(undo-tree-save-format-version . 1)
+"8acdfef55a1ac93fc46fa3cc3e88a868183caf21"
+[nil nil nil nil (26836 2598 254724 841000) 0 nil]
+([nil nil (("*.csv
+" . 135) (undo-tree-id0 . -5) (t 26833 3652 923397 128000)) nil (26836 2598 254717 242000) 0 nil])
+([nil current ((":" . -3773) (undo-tree-id1 . -1) 3774 (3773 . 3774) (3715 . 3773) (3714 . 3715) (t 26836 2598 256579 575000)) nil (26836 2761 420052 657000) 0 nil])
+nil
