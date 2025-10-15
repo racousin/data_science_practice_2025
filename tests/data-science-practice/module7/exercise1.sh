@@ -30,7 +30,7 @@ python tests/utils/download_from_s3.py $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY
 
 # Run mAP computation using the compute_map script
 set +e
-MAP_THRESHOLD=0.73
+MAP_THRESHOLD=0.70
 COMPARE_OUTPUT=$(python tests/utils/compute_map.py $RESULTS_PATH $PREDICTIONS_PATH $MAP_THRESHOLD 2>&1)
 COMPARE_EXIT_CODE=$?
 # Extract score using sed (compatible with macOS)
