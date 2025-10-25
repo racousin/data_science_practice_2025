@@ -1,0 +1,6 @@
+.venv/
+runs/
+boats.yaml
+temp_*.png
+*.pkl
+data/
