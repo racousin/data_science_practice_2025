@@ -1,51 +1,26 @@
-import gymnasium as gym
-import numpy as np
 import random
-import time
-from collections import deque
-import matplotlib.pyplot as plt
 
-# --- DÉFINITION DE LA CLASSE AGENT (INCLUS POUR AUTONOMIE) ---
 class Agent:
-    # Paramètres Q-Learning par défaut (Attributs de Classe)
-    DEFAULT_LR = 0.1
-    DEFAULT_GAMMA = 0.99
-    DEFAULT_INITIAL_EPSILON = 1.0
-    DEFAULT_EPSILON_DECAY = 0.00005
-    DEFAULT_FINAL_EPSILON = 0.1
-
-    # Signature mise à jour pour respecter la contrainte
-    def __init__(self, env, player_name=None):
+    def __init__(self, env):
         self.env = env
-        self.player_name = player_name  # Optionnel pour les systèmes multi-agents
-
-        # Initialisation des paramètres de l'instance
-        self.lr = self.DEFAULT_LR
-        self.gamma = self.DEFAULT_GAMMA
-        self.epsilon = self.DEFAULT_INITIAL_EPSILON
-        self.epsilon_decay = self.DEFAULT_EPSILON_DECAY
-        self.final_epsilon = self.DEFAULT_FINAL_EPSILON
         
-        # Initialisation de la Q-table (états x actions).
-        self.Q = np.zeros((env.observation_space.n, env.action_space.n))
+        self.Q = [[0.5485919009259289, 0.5122101637498695, 0.5221051758667569, 0.5204045828360458], [0.36476355726302245, 0.3071347412805255, 0.36460982265233144, 0.5021483034329793], [0.45320808902097204, 0.45010125057804906, 0.41731697363166476, 0.46737429442015804], [0.2318725963114771, 0.2653330775027542, 0.31612380178079, 0.4539323305296447], [0.5783946700148189, 0.3002997162713605, 0.2637927157697642, 0.3061571593690659], [0.0, 0.0, 0.0, 0.0], [0.39181479321673307, 0.18715014454830756, 0.2675988266055113, 0.14718404255200243], [0.0, 0.0, 0.0, 0.0], [0.44219251946899096, 0.5243969200047434, 0.5033652883263943, 0.6123612003904908], [0.4355456259745628, 0.6430114490436017, 0.4706327280569082, 0.38843537982224563], [0.645483810206497, 0.43292264938484243, 0.41864080155497435, 0.3775905608058364], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.36416459641732335, 0.693842142050282, 0.7274925601524941, 0.43946416826565704], [0.7340924284248898, 0.8844885983943047, 0.8210897904133792, 0.7633499872032633], [0.0, 0.0, 0.0, 0.0]]
+        self.nS = len(self.Q)
+        self.nA = len(self.Q[0]) if self.nS>0 else env.action_space.n
 
     def choose_action(self, observation, reward=0.0, terminated=False, truncated=False, info=None):
-        # Stratégie epsilon-gloutonne:
-        if random.random() < self.epsilon:
-            action = self.env.action_space.sample() # Exploration
+        s = int(observation)
+
+        if s < 0 or s >= self.nS:
+            return self.env.action_space.sample()
+
+        row = self.Q[s]
+        m = max(row)
+        
+        TOLERANCE = 1e-6 
+        meilleures = [a for a, q in enumerate(row) if abs(q - m) < TOLERANCE]
+
+        if meilleures:
+            return random.choice(meilleures)
         else:
-            action = np.argmax(self.Q[observation]) # Exploitation
-            
-        return action
-
-    def learn(self, obs, action, reward, next_obs, terminated):
-        max_future_q = np.max(self.Q[next_obs]) if not terminated else 0
-        
-        td_target = reward + self.gamma * max_future_q
-        td_error = td_target - self.Q[obs, action]
-        
-        self.Q[obs, action] += self.lr * td_error
-
-    def decay_epsilon(self):
-        self.epsilon = max(self.final_epsilon, self.epsilon - self.epsilon_decay)
-        return self.epsilon
+            return self.env.action_space.sample()
