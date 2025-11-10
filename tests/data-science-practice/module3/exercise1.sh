@@ -35,7 +35,10 @@ METRIC="mean_absolute_error"
 TARGET_COL="SalePrice"
 COMPARE_OUTPUT=$(python tests/utils/compare_predictions.py $RESULTS_PATH $PREDICTIONS_PATH $ERROR_THRESHOLD $METRIC $TARGET_COL 2>&1)
 COMPARE_EXIT_CODE=$?
-SCORE=$(echo "$COMPARE_OUTPUT" | grep -oP '(?<=score: )[\d.]+') 
+SCORE=$(echo "$COMPARE_OUTPUT" | sed -n 's/.*score: \([0-9.]*\).*/\1/p')
+if [ -z "$SCORE" ]; then
+    SCORE="0"
+fi
 set -e
 
 # Deactivate the virtual environment
@@ -46,7 +49,10 @@ if [ "$COMPARE_EXIT_CODE" -eq 0 ]; then
     echo "{\"is_passed_test\": true, \"score\": \"$SCORE\", \"logs\": \"${COMPARE_OUTPUT}\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
 else
     # Extract only the score if present, else default to "0"
-    SCORE=$(echo "$COMPARE_OUTPUT" | grep -oP '(?<=: )[0-9]+(\.[0-9]+)?' || echo "0")
+    SCORE=$(echo "$COMPARE_OUTPUT" | sed -n 's/.*score: \([0-9.]*\).*/\1/p')
+    if [ -z "$SCORE" ]; then
+        SCORE="0"
+    fi
     echo "{\"is_passed_test\": false, \"score\": \"$SCORE\", \"logs\": \"${COMPARE_OUTPUT}\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
 fi
 
