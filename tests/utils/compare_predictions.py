@@ -6,25 +6,50 @@ import numpy as np
 
 def weighted_accuracy(y_true, y_pred):
     weights = np.abs(y_true)
-    
+
     # Compute the sign of true and predicted values
     sign_true = np.sign(y_true)
     sign_pred = np.sign(y_pred)
-    
+
     # Correct predictions where the sign of the true and predicted values match
     correct_predictions = sign_true == sign_pred
-    
+
     # Compute the weighted accuracy
     weighted_acc = np.sum(weights * correct_predictions) / np.sum(weights)
-    
+
     return weighted_acc
+
+def rounded_accuracy(y_true, y_pred, decimals=2):
+    """
+    Compute accuracy after rounding both true values and predictions to specified decimal places.
+
+    This metric computes the proportion of predictions that exactly match the true values
+    after both are rounded to the specified number of decimal places.
+
+    Args:
+        y_true: True values
+        y_pred: Predicted values
+        decimals: Number of decimal places to round to (default: 2)
+
+    Returns:
+        Accuracy score (proportion of exact matches after rounding)
+    """
+    y_true_rounded = np.round(y_true, decimals=decimals)
+    y_pred_rounded = np.round(y_pred, decimals=decimals)
+
+    # Compute accuracy as proportion of exact matches
+    matches = y_true_rounded == y_pred_rounded
+    accuracy = np.mean(matches)
+
+    return accuracy
 
 # Dictionary to map metric names to their corresponding functions
 metrics_map = {
     "mean_absolute_error": mean_absolute_error,
     "mean_squared_error": mean_squared_error,
     "weighted_accuracy": weighted_accuracy,
-    "accuracy": accuracy_score
+    "accuracy": accuracy_score,
+    "rounded_accuracy": rounded_accuracy
 }
 
 
