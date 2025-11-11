@@ -1,0 +1,9 @@
+**/.ipynb_checkpoints/
+**/submission.csv
+**/predictions.csv
+archive_outputs/
+outputs/
+*.tmp
+*.log
+tools/__pycache__/
+lib/**/__pycache__/
