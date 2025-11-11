@@ -1,2 +1,0 @@
-# mysupertools
-empty readme

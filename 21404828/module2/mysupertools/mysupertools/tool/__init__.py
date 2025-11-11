@@ -1,1 +1,0 @@
-from .operation_a_b import multiply
