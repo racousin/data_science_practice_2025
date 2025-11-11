@@ -1,0 +1,5 @@
+.venv/
+test.csv
+train.csv
+main.py
+README.md
