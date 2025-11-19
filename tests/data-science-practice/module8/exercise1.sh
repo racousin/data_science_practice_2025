@@ -46,14 +46,24 @@ deactivate
 
 # Prepare the output in JSON format based on the test results
 if [ "$COMPARE_EXIT_CODE" -eq 0 ]; then
-    echo "{\"is_passed_test\": true, \"score\": \"$SCORE\", \"logs\": \"${COMPARE_OUTPUT}\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
+    jq -n \
+        --arg is_passed "true" \
+        --arg score "$SCORE" \
+        --arg logs "$COMPARE_OUTPUT" \
+        --arg time "$CURRENT_UTC_TIME" \
+        '{is_passed_test: ($is_passed == "true"), score: $score, logs: $logs, updated_time_utc: $time}' > $RESULT_FILE
 else
     # Extract only the score if present, else default to "0"
     SCORE=$(echo "$COMPARE_OUTPUT" | sed -n 's/.*score: \([0-9.]*\).*/\1/p')
     if [ -z "$SCORE" ]; then
         SCORE="0"
     fi
-    echo "{\"is_passed_test\": false, \"score\": \"$SCORE\", \"logs\": \"${COMPARE_OUTPUT}\", \"updated_time_utc\": \"$CURRENT_UTC_TIME\"}" > $RESULT_FILE
+    jq -n \
+        --arg is_passed "false" \
+        --arg score "$SCORE" \
+        --arg logs "$COMPARE_OUTPUT" \
+        --arg time "$CURRENT_UTC_TIME" \
+        '{is_passed_test: ($is_passed == "true"), score: $score, logs: $logs, updated_time_utc: $time}' > $RESULT_FILE
 fi
 
 # Clean up the virtual environment directory

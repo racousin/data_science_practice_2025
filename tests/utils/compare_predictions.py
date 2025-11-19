@@ -86,6 +86,47 @@ def compare_predictions(
     except KeyError:
         print(f"Error: {id_col} mismatch between the true values and predictions.")
         sys.exit(1)
+    except ValueError as e:
+        if "You are trying to merge on object and int64 columns" in str(e) or "columns for key" in str(e):
+            print(f"Error: Data type mismatch in '{id_col}' column between true values and predictions.")
+            print(f"\nExpected {id_col} type: {y_true[id_col].dtype}")
+            print(f"Your {id_col} type: {y_pred[id_col].dtype}")
+            print(f"\nFirst 5 expected {id_col} values: {list(y_true[id_col].head())}")
+            print(f"First 5 your {id_col} values: {list(y_pred[id_col].head())}")
+            print(f"\nThe '{id_col}' values in your file do not match the format in the expected file.")
+            print(f"Make sure you're using the correct {id_col} values from the test data, not row indices.")
+            sys.exit(1)
+        else:
+            raise
+
+    # Check if merge resulted in any matching rows
+    if len(merged_data) == 0:
+        print(f"Error: No matching rows found after merging on '{id_col}' column.")
+        print(f"Your file has {len(y_pred)} rows, expected file has {len(y_true)} rows.")
+
+        if len(y_pred) > 0 and len(y_true) > 0:
+            # Show sample IDs from each file
+            expected_ids = set(y_true[id_col])
+            your_ids = set(y_pred[id_col])
+
+            # Show examples of IDs that don't match
+            your_missing = list(your_ids - expected_ids)[:5]
+            expected_missing = list(expected_ids - your_ids)[:5]
+
+            print(f"\nExpected {id_col} type: {y_true[id_col].dtype}")
+            print(f"Your {id_col} type: {y_pred[id_col].dtype}")
+
+            print(f"\nFirst 5 expected {id_col} values: {list(y_true[id_col].head())}")
+            print(f"First 5 your {id_col} values: {list(y_pred[id_col].head())}")
+
+            if your_missing:
+                print(f"\nExample {id_col} values in YOUR file but NOT in expected file: {your_missing}")
+            if expected_missing:
+                print(f"Example {id_col} values in EXPECTED file but NOT in your file: {expected_missing}")
+        else:
+            print("Your prediction file appears to be empty (no data rows).")
+        sys.exit(1)
+
     # Check if the target column exists and is numeric
     if f"{target_col}_pred" not in merged_data.columns:
         print(f"Error: The target column '{target_col}' does not exist in your file.")
